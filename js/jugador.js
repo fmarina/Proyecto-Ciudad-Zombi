@@ -8,7 +8,7 @@ var Jugador = {
   y: 160,
   ancho: 15,
   alto: 30,
-  velocidad: 15,
+  velocidad: 10,
   vidas: 5,
   mover: function(movX, movY){
     this.x += movX;
