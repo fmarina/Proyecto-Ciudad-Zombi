@@ -25,7 +25,6 @@ ZombieCaminante.prototype.mover = function() {
     this.y += this.velocidad;
     this.x -= this.velocidad;
   }
-
   /* En esta parte lo que hacemos es invertir la direccion horizontal si
   toca uno de sus limites, modificando su velocidad. Si multiplicamos por -1 la
   velocidad lo que estamos haciendo es invertir su direccion.*/
@@ -41,7 +40,10 @@ ZombieCaminante.prototype.mover = function() {
 /* El ataque lo toma de su prototipo Enemigo que ya implementa un metodo atacar
 haciendole perder 1 vida al jugador. Si se quiere modificar el valor de ataque
 del zombie caminante habra que reimplementar este metodo desde el objeto ZombieCaminante
-
 ZombieConductor.prototype.atacar = function(jugador) {
   ...
-}*/
+}
+ZombieCaminante.prototype.atacar = function(jugador){
+  jugador.perderVidas(2);
+}
+*/
