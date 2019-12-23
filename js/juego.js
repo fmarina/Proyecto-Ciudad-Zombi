@@ -1,26 +1,18 @@
-/* El objeto Juego sera el encargado del control de todo el resto de los Objetos
+/*El objeto Juego sera el encargado del control de todo el resto de los Objetos
 existentes.
 Le dara ordenes al Dibujante para que dibuje entidades en la pantalla. Cargara
 el mapa, chequeara colisiones entre los objetos y actualizara sus movimientos
-y ataques. Gran parte de su implementacion esta hecha, pero hay espacios con el
-texto COMPLETAR que deben completarse segun lo indique la consigna.
-
-El objeto Juego contiene mucho codigo. Tomate tu tiempo para leerlo tranquilo
-y entender que es lo que hace en cada una de sus partes. */
+y ataques.*/
 
 var Juego = {
-  // Aca se configura el tamanio del canvas del juego
   anchoCanvas: 961,
   altoCanvas: 577,
   jugador: Jugador,
-  vidasInicial: Jugador.vidas,
-  // Indica si el jugador gano
-  ganador: false,
-  obstaculosCarretera: [
-    /*Aca se van a agregar los obstaculos visibles. Tenemos una valla horizontal
-    de ejemplo, pero podras agregar muchos mas. */
+  vidasInicial: Jugador.vidas,  
+  ganador: false,// Indica si el jugador gano
+  obstaculosCarretera: [    
+                  //sprite, x, y, ancho, alto, potencia
     new Obstaculo('imagenes/valla_horizontal.png', 70, 440, 30, 30, 1),
-                                      //sprite, x, y, ancho, alto, potencia
     new Obstaculo('imagenes/valla_horizontal.png', 100, 440, 30, 30, 1),
     new Obstaculo('imagenes/valla_horizontal.png', 130, 440, 30, 30, 1),
     new Obstaculo('imagenes/valla_horizontal.png', 130, 70, 30, 30, 1),
@@ -38,11 +30,9 @@ var Juego = {
     new Obstaculo('imagenes/auto_verde_abajo.png', 540, 210, 15, 30, 3),
     new Obstaculo('imagenes/auto_verde_derecha.png', 835, 283, 30, 15, 3)
   ],
-  /* Estos son los bordes con los que se puede chocar, por ejemplo, la vereda.
-   Ya estan ubicados en sus lugares correspondientes. Ya aparecen en el mapa, ya
-   que son invisibles. No tenes que preocuparte por ellos.*/
+  // Estos son los bordes con los que se puede chocar, por ejemplo, la vereda.
   bordes: [
-    // // Bordes
+    // Bordes
     new Obstaculo('', 0, 5, 961, 18, 0),
     new Obstaculo('', 0, 559, 961, 18, 0),
     new Obstaculo('', 0, 5, 18, 572, 0),
@@ -57,9 +47,8 @@ var Juego = {
     new Obstaculo('', 279, 23, 664, 56, 2),
     new Obstaculo('', 887, 79, 56, 480, 2)
   ],
-  // Los enemigos se agregaran en este arreglo. ancho: 961 - alto: 577
   enemigos: [
-    //Conductor: sprite, x, y, ancho, alto, velocidad, rangoMov, direccion    
+                //sprite, x, y, ancho, alto, velocidad, rangoMov, direccion    
     new ZombieConductor("imagenes/tren_horizontal.png", 400, 322, 90, 30, 8, {
       desdeX: 20,
       hastaX: 850,
@@ -83,7 +72,7 @@ var Juego = {
       hastaX: 200,
       desdeY: 400,
       hastaY: 50
-      }),
+      }), 
     new ZombieCaminante("imagenes/zombie4.png", 100, 200, 10, 10, 1.5, {
       desdeX: 50,
       hastaX: 360,
@@ -153,11 +142,6 @@ var Juego = {
   ]
 }
 
-
-/* Se cargan los recursos de las imagenes, para tener un facil acceso
-a ellos. No hace falta comprender esta parte. Pero si queres agregar tus propies
-imagenes tendras que poner su ruta en la lista para que pueda ser precargada como
-todas las demas. */
 Juego.iniciarRecursos = function() {
   Resources.load([
     'imagenes/mapa.png',
@@ -189,21 +173,16 @@ Juego.obstaculos = function() {
 };
 
 Juego.comenzar = function() {
-  // Inicializar el canvas del juego
   Dibujante.inicializarCanvas(this.anchoCanvas, this.altoCanvas);
   /* El bucle principal del juego se llamara continuamente para actualizar
-  los movimientos y el pintado de la pantalla. Sera el encargado de calcular los
+  los movimientos y el pintado de la pantalla. Es el encargado de calcular los
   ataques, colisiones, etc*/
   this.buclePrincipal();
 };
 
-Juego.buclePrincipal = function() {
-
-  // Con update se actualiza la logica del juego, tanto ataques como movimientos
-  this.update();
-  // Funcion que dibuja por cada fotograma a los objetos en pantalla.
-  this.dibujar();
-  // Esto es una forma de llamar a la funcion Juego.buclePrincipal() repetidas veces
+Juego.buclePrincipal = function() {  
+  this.update(); //update actualiza la logica del juego, tanto ataques como movimientos
+  this.dibujar();//Funcion que dibuja por cada fotograma a los objetos en pantalla.
   window.requestAnimationFrame(this.buclePrincipal.bind(this));
 };
 
@@ -211,75 +190,47 @@ Juego.update = function() {
   this.calcularAtaques();
   this.moverEnemigos();
 }
-// Captura las teclas y si coincide con alguna de las flechas tiene que
-// hacer que el jugador principal se mueva
+// Captura las teclas y si coincide con alguna de las flechas hace que el jugador se mueva
 Juego.capturarMovimiento = function(tecla) {
   var movX = 0;
   var movY = 0;
   var velocidad = this.jugador.velocidad;
-
   // El movimiento esta determinado por la velocidad del jugador
   if (tecla == 'izq') {
-    movX = -velocidad;
-    this.jugador.ancho = 30;
-    this.jugador.alto = 15;
-    this.jugador.sprite = "imagenes/auto_rojo_izquierda.png";
-    
+    movX = -velocidad;    
   }
   if (tecla == 'arriba') {
     movY = -velocidad;
-    this.jugador.ancho = 15;
-    this.jugador.alto = 30;
-    this.jugador.sprite = "imagenes/auto_rojo_arriba.png";
   }
   if (tecla == 'der') {
     movX = velocidad;
-    this.jugador.ancho = 30;
-    this.jugador.alto = 15;
-    this.jugador.sprite = "imagenes/auto_rojo_derecha.png";
   }
   if (tecla == 'abajo') {
     movY = velocidad;
-    this.jugador.ancho = 15;
-    this.jugador.alto = 30;
-    this.jugador.sprite = "imagenes/auto_rojo_abajo.png";
   }
-
-  // Si se puede mover hacia esa posicion hay que hacer efectivo este movimiento
   if (this.chequearColisiones(movX + this.jugador.x, movY + this.jugador.y)) {
-    /* Aca tiene que estar la logica para mover al jugador invocando alguno
-    de sus metodos  COMPLETAR */
-    this.jugador.mover(movX, movY);
+    this.jugador.mover(movX, movY, tecla);
   }
 };
 
-Juego.dibujar = function() {
-  // Borrar el fotograma actual
-  Dibujante.borrarAreaDeJuego();
-  //Se pinta la imagen de fondo segun el estado del juego
-  this.dibujarFondo();
+Juego.dibujar = function(){
+  Dibujante.borrarAreaDeJuego(); //Borra el fotograma actual  
+  this.dibujarFondo(); //Se pinta la imagen de fondo segun el estado del juego
 
-  /* Aca hay que agregar la logica para poder dibujar al jugador principal
-  utilizando al dibujante y los metodos que nos brinda.
-  "Dibujante dibuja al jugador" */
-  /* Completar */
+  if(this.terminoJuego() || this.ganoJuego()) return;
+
   Dibujante.dibujarEntidad(this.jugador);
-
-  //linea de llegada   ruta, x, y, ancho, alto
+  //linea de llegada:
   Dibujante.dibujarImagen("imagenes/Mapa/linea_llegada.png", 760, 530, 127, 16);
-  
-  // Se recorren los obstaculos de la carretera pintandolos
-  this.obstaculosCarretera.forEach(function(obstaculo) {
-    Dibujante.dibujarEntidad(obstaculo);
+
+  this.obstaculosCarretera.forEach(function(obstaculo) {    
+    Dibujante.dibujarEntidad(obstaculo);// Se pintan los obstaculos de la carretera
   });
 
-  // Se recorren los enemigos pintandolos
   this.enemigos.forEach(function(enemigo) {
-    /* Completar */
-    Dibujante.dibujarEntidad(enemigo);
+    Dibujante.dibujarEntidad(enemigo);// Se recorren los enemigos pintandolos
   });
-
-  // El dibujante dibuja las vidas del jugador
+  //El dibujante dibuja las vidas del jugador:
   var tamanio = this.anchoCanvas / this.vidasInicial;
   Dibujante.dibujarRectangulo('white', 0, 0, this.anchoCanvas, 8);
   for (var i = 0; i < this.jugador.vidas; i++) {
@@ -288,42 +239,33 @@ Juego.dibujar = function() {
   }
 };
 
-/* Recorre los enemigos haciendo que se muevan. De la misma forma que hicimos
-un recorrido por los enemigos para dibujarlos en pantalla ahora habra que hacer
-una funcionalidad similar pero para que se muevan.*/
-Juego.moverEnemigos = function() {
-  /* COMPLETAR */
+//Recorre los enemigos haciendo que se muevan.
+Juego.moverEnemigos = function(){
   this.enemigos.forEach(function(enemigo){
     enemigo.mover();    
   });
 };
 
-/* Recorre los enemigos para ver cual esta colisionando con el jugador
-Si colisiona empieza el ataque el zombie, si no, deja de atacar.
-Para chequear las colisiones estudiar el metodo posicionValida. Alli
-se ven las colisiones con los obstaculos. En este caso sera con los zombies. */
+/*Recorre los enemigos para ver cual esta colisionando con el jugador
+Si colisiona empieza el ataque el zombie, si no, deja de atacar.*/
 Juego.calcularAtaques = function() {
   this.enemigos.forEach(function(enemigo) {
     if (this.intersecan(enemigo, this.jugador, this.jugador.x, this.jugador.y)){
-      /* Si el enemigo colisiona debe empezar su ataque COMPLETAR */
       enemigo.comenzarAtaque(this.jugador);
     } else {
-      /* Sino, debe dejar de atacar COMPLETAR */
       Enemigo.prototype.dejarDeAtacar();
     }
   }, this);
 };
 
-/* Aca se chequea si el jugador se peude mover a la posicion destino.
+/* Chequea si el jugador se puede mover a la posicion destino.
  Es decir, que no haya obstaculos que se interpongan. De ser asi, no podra moverse */
 Juego.chequearColisiones = function(x, y) {
   var puedeMoverse = true
   this.obstaculos().forEach(function(obstaculo) {
     if (this.intersecan(obstaculo, this.jugador, x, y)) {
-
-      /*COMPLETAR, obstaculo debe chocar al jugador*/
       obstaculo.chocar(this.jugador);
-
+      obstaculo.potencia = 0;
       puedeMoverse = false
     }
   }, this)
@@ -347,13 +289,12 @@ Juego.intersecan = function(elemento1, elemento2, x, y) {
 };
 
 Juego.dibujarFondo = function() {
-  // Si se termino el juego hay que mostrar el mensaje de game over de fondo
+  // Si se termino el juego muestra el mensaje de game over de fondo
   if (this.terminoJuego()) {
     Dibujante.dibujarImagen('imagenes/mensaje_gameover.png', 0, 5, this.anchoCanvas, this.altoCanvas);
     document.getElementById('reiniciar').style.visibility = 'visible';
   }
-
-  // Si se gano el juego hay que mostrar el mensaje de ganoJuego de fondo
+  // Si se gano el juego se muestra el mensaje de ganoJuego de fondo
   else if (this.ganoJuego()) {
     Dibujante.dibujarImagen('imagenes/Splash.png', 190, 113, 500, 203);
     document.getElementById('reiniciar').style.visibility = 'visible';
@@ -366,7 +307,7 @@ Juego.terminoJuego = function() {
   return this.jugador.vidas <= 0;
 };
 
-/* Se gana el juego si se sobre pasa cierto altura y */
+/* Se gana el juego si se sobre pasa cierto altura Y */
 Juego.ganoJuego = function() {
   return (this.jugador.y + this.jugador.alto) > 530;
 };
@@ -374,7 +315,6 @@ Juego.ganoJuego = function() {
 Juego.iniciarRecursos();
 
 // Activa las lecturas del teclado al presionar teclas
-// Documentacion: https://developer.mozilla.org/es/docs/Web/API/EventTarget/addEventListener
 document.addEventListener('keydown', function(e) {
   var allowedKeys = {
     37: 'izq',
@@ -382,6 +322,5 @@ document.addEventListener('keydown', function(e) {
     39: 'der',
     40: 'abajo'
   };
-
   Juego.capturarMovimiento(allowedKeys[e.keyCode]);
 });
